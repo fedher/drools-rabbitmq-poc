@@ -20,7 +20,7 @@ public class DroolsTest {
         	KieSession kSession = kContainer.newKieSession("ksession-rules");
         	        	
             // go !            
-            String[] names = new String[] {"kitchen", "bedroom", "office", "living"};
+            String[] names = new String[] { "kitchen", "bedroom", "office", "living" };
 
             Map<String, Room> name2room = new HashMap<String, Room>();
 
@@ -28,7 +28,7 @@ public class DroolsTest {
                 Room room = new Room(name);
                 name2room.put(name, room);
                 kSession.insert(room);
-                
+                                
                 Sprinkler sprinkler = new Sprinkler(room);
                 kSession.insert(sprinkler);
             }
