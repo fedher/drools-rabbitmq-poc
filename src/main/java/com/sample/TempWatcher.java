@@ -91,7 +91,7 @@ public class TempWatcher {
 			// Ignore
 		}
 		
-		System.out.println(" [x] temp: " + temp);
+		//System.out.println(" [x] temp: " + temp);
 		
 		if (temp > THRESHOLD) {
 			//System.out.println(" [x] FIRE!!!");
