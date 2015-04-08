@@ -35,18 +35,18 @@ public class TempWatcher {
 	
 
 	public void start() throws IOException, 
-							ShutdownSignalException, 
-							ConsumerCancelledException,
-							InterruptedException {
+						ShutdownSignalException, 
+						ConsumerCancelledException,
+						InterruptedException {
 		// Sets up rabbitmq queue
     	initMQ();
 	}
 	
 	
 	private void initMQ() throws IOException, 
-								ShutdownSignalException, 
-								ConsumerCancelledException,
-								InterruptedException {
+							ShutdownSignalException, 
+							ConsumerCancelledException,
+							InterruptedException {
 		
     	ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
@@ -65,7 +65,7 @@ public class TempWatcher {
         	// nextDelivery() blocks until another message has been delivered from the server.
 			QueueingConsumer.Delivery delivery = consumer.nextDelivery();
 			String message = new String(delivery.getBody());
-//			System.out.println(" [x] Received '" + message + "'");
+			//System.out.println(" [x] Received '" + message + "'");
 			
 			evaluate(message);
         }		
@@ -80,15 +80,21 @@ public class TempWatcher {
 	
 	
 	private void evaluate(String msg) {
-		int temp;
+		int temp = 0;
 		
-		// Get temp from rabbitmq messages.
-		temp = Integer.parseInt(msg);
+		try {
+			
+			// Get temp from rabbitmq message.
+			temp = Integer.parseInt(msg);
+		}
+		catch (NumberFormatException ex) {
+			// Ignore
+		}
 		
-//		System.out.println(" [x] temp: " + temp);
+		System.out.println(" [x] temp: " + temp);
 		
 		if (temp > THRESHOLD) {
-//			System.out.println(" [x] FIRE!!!");
+			//System.out.println(" [x] FIRE!!!");
 			
 			// A Fact Handle is an internal engine reference to the inserted instance and 
 			// allows instances to be retracted or modified at a later point in time. With 
@@ -105,11 +111,10 @@ public class TempWatcher {
 		else {
 			// This results in the sprinklers being turned off, the alarm being cancelled, 
 			// and eventually the health message is printed again.
-		
 			if (officeFireHandle != null) {
 				kSession.delete(officeFireHandle);
 				officeFireHandle = null;
-//				System.out.println(" [x] Fire extinguished !!!");				
+				//System.out.println(" [x] Fire extinguished !!!");
 			}
 		}
 
