@@ -3,6 +3,8 @@ package com.sample;
 import java.io.IOException;
 import java.util.Map;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
@@ -19,7 +21,7 @@ import com.rabbitmq.client.ShutdownSignalException;
 public class TempWatcher {
 
 	private KieSession kSession = null;
-	private FactHandle officeFireHandle = null;
+	private FactHandle fireHandle = null;
 	private Map<String, Room> name2room = null;
 	
 	public final static int THRESHOLD = 60;
@@ -38,7 +40,7 @@ public class TempWatcher {
 						ShutdownSignalException, 
 						ConsumerCancelledException,
 						InterruptedException {
-		// Sets up rabbitmq queue
+		// Sets up rabbitmq queue.
     	initMQ();
 	}
 	
@@ -65,7 +67,7 @@ public class TempWatcher {
         	// nextDelivery() blocks until another message has been delivered from the server.
 			QueueingConsumer.Delivery delivery = consumer.nextDelivery();
 			String message = new String(delivery.getBody());
-			//System.out.println(" [x] Received '" + message + "'");
+			//System.out.println(" [*] Received '" + message + "'");
 			
 			evaluate(message);
         }		
@@ -80,41 +82,41 @@ public class TempWatcher {
 	
 	
 	private void evaluate(String msg) {
-		int temp = 0;
+		int temp;
+		String roomName;
 		
 		try {
-			
-			// Get temp from rabbitmq message.
-			temp = Integer.parseInt(msg);
+			// Get temp and room name from rabbitmq message.			
+			JSONObject payload = new JSONObject(msg);
+			temp = payload.getInt("temp");
+			roomName = payload.getString("room");
+
+			System.out.println(" [*] room: "+ roomName +", temp: "+ temp);
 		}
-		catch (NumberFormatException ex) {
-			// Ignore
+		catch (JSONException ex) {
+			System.out.println(" [x] Error while parsing the JSON message.");
+			return;
 		}
-		
-		//System.out.println(" [x] temp: " + temp);
-		
+
 		if (temp > THRESHOLD) {
-			//System.out.println(" [x] FIRE!!!");
+			//System.out.println(" [*] FIRE!!!");
 			
 			// A Fact Handle is an internal engine reference to the inserted instance and 
 			// allows instances to be retracted or modified at a later point in time. With 
 			// the fires now in the engine, once fireAllRules() is called, the alarm is 
 			// raised and the respective sprinklers are turned on. 
-			
-			// @@ TODO: Get room name from message
-			
-			String roomName = "office";
+						
 			Room room = name2room.get(roomName);
-			Fire officeFire = new Fire(room);
-			officeFireHandle = kSession.insert(officeFire);
+			Fire fire = new Fire(room);
+			fireHandle = kSession.insert(fire);
 		}
 		else {
 			// This results in the sprinklers being turned off, the alarm being cancelled, 
 			// and eventually the health message is printed again.
-			if (officeFireHandle != null) {
-				kSession.delete(officeFireHandle);
-				officeFireHandle = null;
-				//System.out.println(" [x] Fire extinguished !!!");
+			if (fireHandle != null) {
+				kSession.delete(fireHandle);
+				fireHandle = null;
+				//System.out.println(" [*] Fire extinguished !!!");
 			}
 		}
 
