@@ -1,28 +1,28 @@
 package com.sample
  
-import com.sample.Room;
-import com.sample.Sprinkler;
-import com.sample.Alarm;
-import com.sample.Fire;
+import com.model.Room;
+import com.model.Sprinkler;
+import com.model.Alarm;
+import com.model.Fire;
 
 
 rule "When there is a fire turn on the sprinkler"
 when	
-	Fire( $room : room )
-   	$sprinkler : Sprinkler( room == $room, on == false )
+	Fire( r : room )
+   	sprinkler : Sprinkler( room.name == r.name, on == false )
 then
-    modify( $sprinkler ) { setOn( true ) };
-    System.out.println( "Turn on the sprinkler for room " + $room.getName() );
+    modify( sprinkler ) { setOn( true ) };
+    System.out.println( "Turn on the sprinkler for room " + r.getName() );
 end
  
 rule "When the fire is gone turn off the sprinkler"
 when
-    $room : Room()
-    $sprinkler : Sprinkler( room == $room, on == true )
-    not Fire( room == $room )
+    r : Room()
+    sprinkler : Sprinkler( room.name == r.name, on == true )
+    not Fire( room == r )
 then
-    modify( $sprinkler ) { setOn( false ) };
-    System.out.println( "Turn off the sprinkler for room " + $room.getName() );
+    modify( sprinkler ) { setOn( false ) };
+    System.out.println( "Turn off the sprinkler for room " + r.getName() );
 end
 
 rule "Raise the alarm when we have one or more fires"
@@ -38,7 +38,7 @@ when
     not Fire()
     $alarm : Alarm()
 then
-    delete( $alarm );
+    retract( $alarm );
     System.out.println( "Cancel the alarm" );
 end
 

@@ -3,7 +3,94 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>poc</artifactId>
-  <version>1</version>
-  <groupId>alarm</groupId>
+  <groupId>itsec.ruleengine</groupId>
+  <artifactId>ruleengine</artifactId>
+  <version>0.1</version>
+
+  <build>
+      <plugins>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-shade-plugin</artifactId>
+              <version>2.3</version>
+              <configuration>
+              <!-- put your configurations here -->
+              </configuration>
+              <executions>
+                  <execution>
+                  <phase>package</phase>
+                  <goals>
+                  <goal>shade</goal>
+                  </goals>
+                  </execution>
+              </executions>
+          </plugin>
+
+          <plugin>
+              <!-- Build an executable JAR -->
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-jar-plugin</artifactId>
+              <version>2.4</version>
+              <configuration>
+                  <archive>
+                      <manifest>
+                          <addClasspath>true</addClasspath>
+                          <classpathPrefix>lib/</classpathPrefix>
+                          <mainClass>com.itsec.DroolsMain</mainClass>
+                      </manifest>
+                  </archive>
+              </configuration>
+          </plugin>
+      </plugins>
+  </build>
+
+  <properties>
+      <project.custom.encoding>UTF-8</project.custom.encoding>
+      <project.custom.java.version>1.7</project.custom.java.version>
+
+      <drools.version>6.1.0.Final</drools.version>
+
+      <maven.compiler.source>${project.custom.java.version}</maven.compiler.source>
+      <maven.compiler.target>${project.custom.java.version}</maven.compiler.target>
+
+      <project.build.sourceEncoding>${project.custom.encoding}</project.build.sourceEncoding>
+      <project.build.outputEncoding>${project.custom.encoding}</project.build.outputEncoding>
+
+      <project.reporting.outputEncoding>${project.custom.encoding}</project.reporting.outputEncoding>
+  </properties>
+
+   <dependencies>
+      <dependency>
+          <groupId>org.kie</groupId>
+          <artifactId>kie-api</artifactId>
+          <version>6.1.0.Final</version>
+      </dependency>
+      <dependency>
+        <groupId>org.drools</groupId>
+          <artifactId>drools-core</artifactId>
+          <version>${drools.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.drools</groupId>
+          <artifactId>drools-compiler</artifactId>
+          <version>${drools.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.rabbitmq</groupId>
+        <artifactId>amqp-client</artifactId>
+        <version>3.5.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.json</groupId>
+        <artifactId>json</artifactId>
+        <version>20090211</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-site</artifactId>
+        <version>1.7.12</version>
+      </dependency>
+  </dependencies>
+
+
 </project>
