@@ -1,13 +1,31 @@
-package com.sample
+package com.sample;
  
 import com.model.Room;
 import com.model.Sprinkler;
 import com.model.Alarm;
 import com.model.Fire;
+import com.model.Temperature;
+
+rule "Checking high temperatures"
+when
+	Temperature( r : room, value > 60 )
+then
+    insert( new Fire( r ) );
+    System.out.println( "Fire on the room: " + r.getName() );
+end
+
+rule "Checking normal temperatures"
+when
+	Temperature( r : room, value < 60 )
+	fire : Fire( room == r  )
+then
+    retract( fire );
+    System.out.println( "There's no fire on the room: " + r.getName() + "anymore ");
+end
 
 
 rule "When there is a fire turn on the sprinkler"
-when	
+when
 	Fire( r : room )
    	sprinkler : Sprinkler( room.name == r.name, on == false )
 then

@@ -10,6 +10,7 @@ import org.kie.api.runtime.rule.FactHandle;
 
 import com.model.Fire;
 import com.model.Room;
+import com.model.Temperature;
 import com.mq.Listener;
 import com.mq.MQHandler;
 import com.rabbitmq.client.ConsumerCancelledException;
@@ -38,21 +39,20 @@ public class Consumer extends Thread {
 				public void process(KieSession kSession, String message) {
 					try {
 						JSONObject payload = new JSONObject(message);
-						Integer temp;
-						String roomName;
-						
-						temp = payload.getInt("temp");
-						roomName = payload.getString("room");
 
-						System.out.println(" [*] room: "+ roomName +", temp: "+ temp);
+						String roomName = payload.getString("room");
+						Room room = name2room.get(roomName);
+						Temperature temp = new Temperature(room, payload.getInt("temp"));
 						
+						System.out.println(" [*] room: "+ roomName +", temp: "+ temp.getValue());
+
 						// Insert a Fact into the working memory.
-						if (temp > 60) {
-							Room room = name2room.get(roomName);
-							Fire fire = new Fire(room);
-							FactHandle fireHandle = kSession.insert(fire);
-							kSession.fireAllRules();
-						}
+						
+//						Fire fire = new Fire(room);
+//						FactHandle fireHandle = kSession.insert(fire);						
+						FactHandle tempHandle = kSession.insert(temp);
+						kSession.fireAllRules();
+
 					}
 					catch (JSONException ex) {
 						System.out.println(" [x] Error while parsing the JSON message.");
